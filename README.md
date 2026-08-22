@@ -92,6 +92,15 @@ npm run typecheck:all    # both of the above
 
 This project ships Copilot customizations to assist with quality assurance:
 
+### Coding Standards
+
+The repository's instruction files define the working conventions for comments and documentation:
+
+- Comment intent and reasoning, not code mechanics.
+- Document exported helpers in `db/` and `src/lib/` with TSDoc/JSDoc, including parameters and return values.
+- Document reusable `.astro` component `Props` interfaces so component contracts are self-explanatory.
+- Keep comments current; treat stale comments as bugs.
+
 ### Database Explorer Canvas
 
 The shared **Database Explorer** canvas (`.github/extensions/database-explorer/`) provides a small UI and agent actions for browsing the project's SQLite tables and running one read-only `SELECT` or `WITH` query at a time. It uses the database at `.data/tailspin.db` (or `DATABASE_URL` when set), so run `npm run db:setup` before opening it in a fresh checkout.

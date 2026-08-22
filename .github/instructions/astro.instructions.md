@@ -9,6 +9,13 @@ applyTo: '**/*.astro'
 
 Astro handles everything in the UI: pages, layouts, components, routing, and content. The site is **fully prerendered** (`output: 'static'`) — there is no client-side UI framework and no separate API server. Pages read data **directly in frontmatter** at build time via the Drizzle/Node SQLite data-access helpers in `src/lib/`.
 
+## Comment and Documentation Standards
+
+- Comment intent, reasoning, and non-obvious decisions — not the mechanics the code already makes obvious.
+- Remove or rewrite comments that simply restate nearby code.
+- Keep comments current; if the related code changes, update or delete the comment in the same change.
+- Reusable `.astro` components should document their `Props` interface so the component contract is self-explanatory.
+
 ### Component Structure
 
 ```astro
@@ -110,6 +117,7 @@ There is no Svelte/React layer. When a page genuinely needs client behaviour, ad
 
 - Use TypeScript for type-safe props
 - Define `Props` interface in frontmatter
+- Add TSDoc/JSDoc to each documented `Props` field when the component is reusable or public-facing.
 - Type component imports and helper return values
 - Run `npx astro sync` to (re)generate route/content types before linting or type-checking
 - `.astro` files are type-checked by `npm run typecheck:astro` (which runs `astro sync` then `astro check`), on the classic `typescript` package. The pure TypeScript in `db/`, `src/lib/`, and `src/types/` is type-checked separately by `npm run typecheck` (the native TS 7 compiler, `tsgo`), which does **not** process `.astro` files.
