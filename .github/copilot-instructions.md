@@ -12,6 +12,22 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 - Always use absolute paths when running scripts and BASH commands
 - **NEVER commit or push to main automatically unless explicitly instructed to do so**
 
+### Completion proof required
+
+Before claiming any task is complete, provide concrete repository-change evidence in the same reply.
+
+Required commands (run in the current repo worktree):
+- `git --no-pager status --short`
+- `git --no-pager diff --name-only`
+
+Required output in the reply:
+1. The exact `git --no-pager status --short` output.
+2. The changed file list from `git --no-pager diff --name-only` (at least first 5 lines, or all if fewer).
+3. A one-line mapping from each changed file to what was implemented.
+
+If both commands show no changes, do **not** claim completion. Reply exactly:
+`NO_CHANGES_MADE`
+
 ## Code standards
 
 ### Required Before Each Commit
@@ -25,6 +41,22 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 - Test code should be of the same quality as the rest of the project, and follow DRY principles
 - For frontend changes, verify the build (`npm run build`) directly, and run the end-to-end tests through the `quality-checks` skill, to ensure everything works correctly
 - When changing the data layer (schema, helpers, transforms), update and run the corresponding unit tests
+
+### Completion proof required
+
+Before claiming any task is complete, provide concrete repository-change evidence in the same reply.
+
+Required commands (run in the current repo worktree):
+- `git --no-pager status --short`
+- `git --no-pager diff --name-only`
+
+Required output in the reply:
+1. The exact `git --no-pager status --short` output.
+2. The changed file list from `git --no-pager diff --name-only` (at least first 5 lines, or all if fewer).
+3. A one-line mapping from each changed file to what was implemented.
+
+If both commands show no changes, do **not** claim completion. Reply exactly:
+`NO_CHANGES_MADE`
 
 #### Project guidelines
 
