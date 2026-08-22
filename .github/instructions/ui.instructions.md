@@ -50,6 +50,13 @@ Refer to technology-specific instruction files:
 - Keep components focused on a single responsibility
 - Use props for configuration, not duplication
 - Document component APIs with TypeScript types
+- For reusable components, document the `Props` interface fields with TSDoc/JSDoc so the contract is clear at the point of use.
+
+## Commenting Standard
+
+- Comment intent and tradeoffs, not obvious mechanics.
+- Remove comments that merely restate code or markup.
+- Keep comments in sync with the code they describe; stale comments are bugs.
 
 ## Development Workflow
 
