@@ -4,11 +4,13 @@ import GameCard from '../components/GameCard.astro';
 import PageHero from '../components/PageHero.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { getDatabase } from '../lib/db';
-import { getAllGames } from '../lib/games';
+import { getAllCategories, getAllGames, getAllPublishers } from '../lib/games';
 
 export const prerender = true;
-
-const games = await getAllGames(getDatabase());
+const db = getDatabase();
+const categories = await getAllCategories(db);
+const publishers = await getAllPublishers(db);
+const allGames = await getAllGames(db);
 ---
 
 <Layout title="Tailspin Toys - Crowdfunding your new favorite game!">
@@ -18,16 +20,131 @@ const games = await getAllGames(getDatabase());
       subtitle="Find your next game! And maybe even back one! Explore our collection!"
     />
 
+    <div class="mb-8 rounded-xl border border-slate-700 bg-slate-800/50 p-6">
+      <form method="get" class="grid gap-4 md:grid-cols-3 md:items-end" data-testid="games-filter-form">
+        <label class="block">
+          <span class="mb-2 block text-sm font-medium text-slate-200">Category</span>
+          <select
+            name="category"
+            class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            data-testid="category-filter"
+          >
+            <option value="">All categories</option>
+            {categories.map((category) => (
+              <option value={category.id}>{category.name}</option>
+            ))}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-medium text-slate-200">Publisher</span>
+          <select
+            name="publisher"
+            class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            data-testid="publisher-filter"
+          >
+            <option value="">All publishers</option>
+            {publishers.map((publisher) => (
+              <option value={publisher.id}>{publisher.name}</option>
+            ))}
+          </select>
+        </label>
+
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            data-testid="apply-filters"
+          >
+            Apply filters
+          </button>
+          <a
+            href="/"
+            class="inline-flex items-center rounded-lg border border-slate-700 px-4 py-2 font-medium text-slate-200 transition-colors hover:bg-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            data-testid="clear-filters"
+          >
+            Clear
+          </a>
+        </div>
+      </form>
+    </div>
+
     <div>
       <h2 class="text-2xl font-medium mb-6 text-slate-100">Featured Games</h2>
 
-      {games.length === 0 ? (
-        <EmptyState text="No games available at the moment." />
-      ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="games-grid">
-          {games.map((game) => <GameCard game={game} />)}
-        </div>
-      )}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="games-grid">
+        {allGames.map((game) => (
+          <div
+            data-testid="filterable-game"
+            data-category-id={game.category?.id ?? ''}
+            data-publisher-id={game.publisher?.id ?? ''}
+          >
+            <GameCard game={game} />
+          </div>
+        ))}
+      </div>
+
+      <div class="hidden" data-testid="filtered-empty-state">
+        <EmptyState text="No games match the selected category and publisher." />
+      </div>
     </div>
   </div>
 </Layout>
+
+<script>
+  const form = document.querySelector('[data-testid="games-filter-form"]');
+
+  if (form instanceof HTMLFormElement) {
+    form.addEventListener('submit', () => {
+      const categorySelect = form.querySelector<HTMLSelectElement>('select[name="category"]');
+      const publisherSelect = form.querySelector<HTMLSelectElement>('select[name="publisher"]');
+      const url = new URL(window.location.href);
+      const category = categorySelect?.value ?? '';
+      const publisher = publisherSelect?.value ?? '';
+
+      if (category) {
+        url.searchParams.set('category', category);
+      } else {
+        url.searchParams.delete('category');
+      }
+
+      if (publisher) {
+        url.searchParams.set('publisher', publisher);
+      } else {
+        url.searchParams.delete('publisher');
+      }
+
+      window.location.assign(url.toString());
+    });
+
+    const categorySelect = form.querySelector<HTMLSelectElement>('select[name="category"]');
+    const publisherSelect = form.querySelector<HTMLSelectElement>('select[name="publisher"]');
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="filterable-game"]'));
+    const emptyState = document.querySelector<HTMLElement>('[data-testid="filtered-empty-state"]');
+    const url = new URL(window.location.href);
+    const categoryFromQuery = url.searchParams.get('category') ?? '';
+    const publisherFromQuery = url.searchParams.get('publisher') ?? '';
+
+    if (categorySelect) {
+      categorySelect.value = categoryFromQuery;
+    }
+
+    if (publisherSelect) {
+      publisherSelect.value = publisherFromQuery;
+    }
+
+    const visibleCount = cards.reduce((count, card) => {
+      const categoryId = card.dataset.categoryId ?? '';
+      const publisherId = card.dataset.publisherId ?? '';
+      const categoryMatches = !categoryFromQuery || categoryFromQuery === categoryId;
+      const publisherMatches = !publisherFromQuery || publisherFromQuery === publisherId;
+      const visible = categoryMatches && publisherMatches;
+      card.classList.toggle('hidden', !visible);
+      return visible ? count + 1 : count;
+    }, 0);
+
+    if (emptyState) {
+      emptyState.classList.toggle('hidden', visibleCount > 0);
+    }
+  }
+</script>
